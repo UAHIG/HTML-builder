@@ -1,46 +1,48 @@
 const fs = require('fs');
 const path = require('path');
-const way =  path.resolve('04-copy-directory', 'files-copy');
-const copyWay =  path.resolve('04-copy-directory', 'files');
+const sourceDirectory = path.resolve('04-copy-directory', 'files-copy');
+const destinationDirectory = path.resolve('04-copy-directory', 'files');
 const fsPromise = require('fs/promises');
 
-
-
-fs.mkdir(way, { recursive: true }, err => {
-  if(err) throw err; 
-  
+fs.mkdir(sourceDirectory, { recursive: true }, err => {
+  if (err) throw err;
 });
 
-async function copyFiles(){
-  
+async function copyFiles() {
   try {
-    const copies = await fsPromise.readdir('04-copy-directory/files-copy', {withFileTypes: true});
-    console.log(copies);
-    for (let copy of copies){
-      fs.unlink(`04-copy-directory/files-copy/${copy.name}`, function(err){
+    // Read files in the source directory
+    const sourceFiles = await fsPromise.readdir(sourceDirectory, { withFileTypes: true });
+    console.log(sourceFiles);
+
+    // Delete existing files in the source directory
+    for (const sourceFile of sourceFiles) {
+      fs.unlink(path.join(sourceDirectory, sourceFile.name), function (err) {
         if (err) {
           console.log(err);
         } else {
-          console.log('file delited');
+          console.log('File deleted');
         }
       });
     }
 
-    const item = await fsPromise.readdir('04-copy-directory/files', {withFileTypes: true});
-    for (const items of item) {
-      if (items.isFile()){
-        fs.copyFile(`04-copy-directory/files/${items.name}`, `04-copy-directory/files-copy/${items.name}`, (err) => {
-          if (err) {
-            console.log('Error Found:', err);
+    // Copy files from the destination directory to the source directory
+    const destinationFiles = await fsPromise.readdir(destinationDirectory, { withFileTypes: true });
+    for (const destinationFile of destinationFiles) {
+      if (destinationFile.isFile()) {
+        fs.copyFile(
+          path.join(destinationDirectory, destinationFile.name),
+          path.join(sourceDirectory, destinationFile.name),
+          (err) => {
+            if (err) {
+              console.log('Error Found:', err);
+            }
           }
-                
-        });
+        );
       }
     }
-  } catch(err) {
-    console.log((err)); 
+  } catch (err) {
+    console.log(err);
   }
-
 }
 
 copyFiles();
