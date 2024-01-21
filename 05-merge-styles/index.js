@@ -1,32 +1,29 @@
 const fs = require('fs');
 const path = require('path');
-let fileDirection = path.resolve(__dirname + '/project-dist/bundle.css');
+const outputFile = path.resolve(__dirname + '/project-dist/bundle.css');
 
-fs.writeFile(
-  fileDirection,
-  '',
-  (err) => {
-    if (err) throw err;
-  });
+fs.writeFile(outputFile, '', (err) => {
+  if (err) throw err;
+});
 
-fs.readdir('05-merge-styles/styles', {withFileTypes: true}, function(err, items) {
-  let res = [];
-  for (let i = 0; i<items.length; i++) {
-    if (items[i].isFile() === true && path.extname(items[i].name) == '.css') {
-      fs.readFile(`05-merge-styles/styles/${items[i].name}`, 'utf-8', (error, data) => {
+fs.readdir('05-merge-styles/styles', { withFileTypes: true }, function (err, files) {
+  let contentArray = [];
+  
+  for (let i = 0; i < files.length; i++) {
+    if (files[i].isFile() === true && path.extname(files[i].name) === '.css') {
+      fs.readFile(`05-merge-styles/styles/${files[i].name}`, 'utf-8', (error, data) => {
+        if (error) throw error;
         
-        res.push(data);
+        contentArray.push(data);
 
         fs.appendFile(
-          fileDirection,
+          outputFile,
           data,
           err => {
             if (err) throw err;
-          });
-        
+          }
+        );
       });
     }
-    
   }
-  
 });
